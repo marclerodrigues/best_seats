@@ -8,37 +8,25 @@ module BestSeats
     end
 
     def all
-      best_seats
-    end
-
-    private
-
-    def best_seats
       selected_seats = []
 
       available_seats_matrix.each do |line|
-        next if line.length < seats_requested
-        return selected_seats.sort if selected_seats.length == seats_requested
+        next if insuficient_seats?(line.size)
+        return selected_seats.sort if enough_selected?(selected_seats.size) && consecutive_values?(selected_seats)
+
+        selected_seats = []
 
         (0...seats_requested).each do |seat|
           index = index_to_remove(line)
           value = line.delete_at(index)
           selected_seats << value
         end
-
-        first_element = selected_seats.first
-        consecutive_values = [first_element]
-        (0...seats_requested).each do |seat|
-          consecutive_values << first_element.next
-        end
-
-        if selected_seats.sort == consecutive_values.sort
-          return selected_seats
-        end
       end
 
       selected_seats.sort
     end
+
+    private
 
     def available_seats_matrix
       matrix.map do |row|
@@ -46,9 +34,32 @@ module BestSeats
       end.delete_if(&:empty?)
     end
 
+    def insuficient_seats?(total)
+      total < seats_requested
+    end
+
+    def enough_selected?(selected_count)
+      selected_count == seats_requested
+    end
+
+    def consecutive_values?(selected_seats)
+      sorted_values = selected_seats.sort
+      size = sorted_values.size
+
+      sorted_values.delete_if.with_index do |value, index|
+        if index < size - 1
+          value.next == sorted_values[index+1]
+        else
+          true
+        end
+      end
+
+      sorted_values.empty?
+    end
+
     def index_to_remove(collection)
       sorted = collection.sort
-      mid = (sorted.length - 1) / 2.0
+      mid = (sorted.size - 1) / 2.0
       ((mid.floor + mid.ceil) / 2.0).to_i
     end
 

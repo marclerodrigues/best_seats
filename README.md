@@ -66,7 +66,92 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+The algorithm works either with a JSON or a Ruby Hash.
+
+```ruby
+require "best_seats/finder"
+
+file = File.read("file_path")
+input = JSON.parse(file)
+seats_requested = 1
+
+finder = BestSeats::Finder.new(input, seats_requested)
+finder.all
+
+# => [:a1]
+```
+```ruby
+require "best_seats/finder"
+
+input = {
+  "venue": {
+    "layout": {
+      "rows": 10,
+      "columns": 5
+    }
+  },
+  "seats": {
+    "a1": {
+      "id": "a1",
+      "row": "a",
+      "column": 1,
+      "status": "AVAILABLE"
+    },
+    "b5": {
+      "id": "b5",
+      "row": "b",
+      "column": 5,
+      "status": "AVAILABLE"
+    },
+    "h7": {
+      "id": "h7",
+      "row": "h",
+      "column": 7,
+      "status": "AVAILABLE"
+    }
+  }
+}
+seats_requested = 1
+
+finder = BestSeats::Finder.new(input, seats_requested)
+finder.all
+
+# => [:a1]
+```
+
+You can also pass a hash of options to customize the behavior:
+```ruby
+require "best_seats/finder"
+
+file = File.read("file_path")
+input = JSON.parse(file)
+seats_requested = 1
+options = {
+  index_finder: MyCustomIndexFinder
+}
+
+finder = BestSeats::Finder.new(input, seats_requested, options)
+finder.all
+
+# => [:a1]
+```
+Available options:
+```ruby
+DEFAULT_OPTIONS = {
+  matrix_builder: BestSeats::Matrix,
+  index_finder: BestSeats::BestSeatIndexFinder,
+  venue_builder: BestSeats::Venue,
+  seat_group: BestSeats::SeatGroup
+}.freeze
+```
+
+`matrix_builder` - Customize how to build the available seats matrix, check the original class to see the required interface.
+
+`index_finder` - Customize how to find the best seat index, check the original class to see the required interface.
+
+`venue_builder` - Builds the venues from the JSON input, this way you can accept other input formats. Check the original class to the required interface.
+
+`seat_group` - Find if seats are consecutive, check the orignal class to see the required interface.
 
 ## Development
 
@@ -77,7 +162,6 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/marclerodrigues/best_seats.
-
 
 ## License
 

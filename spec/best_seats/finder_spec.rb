@@ -1,8 +1,18 @@
-require "best_seats/finder.rb"
+require "best_seats/finder"
+require_relative "../support/files"
 
 RSpec.describe BestSeats::Finder do
   describe "#all" do
     subject { described_class.new(input, seats_requested).all }
+
+    context "when the input is a json file" do
+      let(:input) { import_json_fixture("../fixtures/test.json") }
+      let(:seats_requested) { 1 }
+
+      it "returns the correct result" do
+        expect(subject).to eq([:a1])
+      end
+    end
 
     context "when one seat is requested" do
       let(:seats_requested) { 1 }
